@@ -13,3 +13,5 @@
 
 # mixins
 .history
+.DS_Store
+.vscode
