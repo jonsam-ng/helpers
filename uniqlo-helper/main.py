@@ -6,15 +6,33 @@ import json
 import prettytable
 import time
 
+# boy girl
+type = 'boy'
+
+# how many products will probe
+maxSize = 200
+# sleep some time for per product
+sleep_time_per_product = 0.12
+# some filters for products
+filters = ['isExpress']
+# filters = []
+# origin price must in this range
+origin_price_range = [200, 9999]
+# current price must in current range
+current_price_range = [0, 120]
+# min discount rate we can accept
+min_discount_rate = 0.6
+# size of product name we want to show
+product_name_max_len = 20
+# black list for product list
+product_name_black_list = ["孕妇", "裤"]
+
 
 apis = {
     "search":  "https://d.uniqlo.cn/h/hmall-sc-service/search/searchWithCategoryCodeAndConditions/zh_CN",
     "detail": "https://h.uniqlo.cn/product?pid=",
     "express_detail": 'https://d.uniqlo.cn/h/stock/stock/query/zh_CN'
 }
-
-# boy girl
-type = 'girl'
 
 search_params_boy = {
     "pageInfo": {
@@ -91,15 +109,6 @@ common_headers = {
     "sec-fetch-site": "same-site",
 }
 
-maxSize = 200
-sleep_time_per_product = 0.12
-# filters = ['isExpress']
-filters = []
-origin_price_range = [200, 9999]
-current_price_range = [0, 100]
-min_discount_rate = 0.6
-product_name_max_len = 40
-
 
 def printTable(p_list, fields):
     table = prettytable.PrettyTable()
@@ -145,6 +154,15 @@ def filter_process(product):
     return next
 
 
+def hit_product_name_black_list(name):
+    hit = False
+    for word in product_name_black_list:
+        if word in name:
+            hit = True
+            break
+    return hit
+
+
 def main():
     search_res = requests.post(
         apis["search"], data=json.dumps(search_params), headers=common_headers).json()
@@ -167,6 +185,8 @@ def main():
         current_price_range[0], current_price_range[1]), p_list))
     p_list = list(
         filter(lambda item: item["concessional_rate"] >= min_discount_rate, p_list))
+    p_list = list(filter(lambda item: (not hit_product_name_black_list(
+        item["productName4zhCN"])), p_list))
     p_list.sort(key=lambda item: item["concessional_rate"], reverse=True)
     log(str(len(p_list)) + ' products has stock, origin prices ranges in ' +
         str(origin_price_range[0]) + ' and ' + str(origin_price_range[1]) + ', current prices ranges in ' +
