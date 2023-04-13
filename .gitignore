@@ -15,3 +15,6 @@
 .history
 .DS_Store
 .vscode
+
+# hidden
+conf.json
