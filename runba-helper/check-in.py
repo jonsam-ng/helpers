@@ -2,7 +2,7 @@
 Author: jonsam jonsam.ng@foxmail.com
 Date: 2023-04-13 23:14:37
 LastEditors: jonsam jonsam.ng@foxmail.com
-LastEditTime: 2023-04-14 00:02:31
+LastEditTime: 2023-04-14 00:29:14
 FilePath: /tools/runba-helper/check-in.py
 Description: Auto check in runba.cyou
 '''
@@ -40,7 +40,7 @@ def main():
         time.sleep(0.5)
         success = res['ret'] == 1
         print(str(i) + ' - ' + 'Check in ' + "success" if success else 'failed' +
-              ", msg: " + res['msg'])
+              ", msg: " + res['msg'] + '.')
 
 
 if __name__ == '__main__':
