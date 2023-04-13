@@ -2,7 +2,7 @@
 Author: jonsam jonsam.ng@foxmail.com
 Date: 2023-04-13 23:14:37
 LastEditors: jonsam jonsam.ng@foxmail.com
-LastEditTime: 2023-04-14 00:29:14
+LastEditTime: 2023-04-14 00:33:27
 FilePath: /tools/runba-helper/check-in.py
 Description: Auto check in runba.cyou
 '''
@@ -34,7 +34,7 @@ with open(path.abspath('conf.json')) as f:
 
 
 def main():
-    for i, cookie in enumerate(keys["cookies"]):
+    for i, cookie in enumerate(keys["runba-cookies"]):
         headers['Cookie'] = cookie
         res = requests.post(apis['checkin'], headers=headers).json()
         time.sleep(0.5)

@@ -7,7 +7,7 @@
 
 An easy-use python script to find high concessional rate products from `uniqlo.cn` on shopping.
 
-### Usage
+Usage:
 
 Install dependencies and run:
 
@@ -19,9 +19,15 @@ You could see outputs likes following.
 
 ![img](/assets/images/2023-04-01-15-47-21.png)
 
-### Runba helper
+## Runba helper
 
 An simple script to auto check in for runba.cyou, support multi cookies. You can use this with cron.
+
+Usage:
+
+```bash
+python3 runba-helper/check-in.py
+```
 
 Run the script, you can see output like this:
 
