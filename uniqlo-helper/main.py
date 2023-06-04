@@ -5,6 +5,7 @@ import requests
 import json
 import prettytable
 import time
+import webbrowser
 
 # boy girl
 type = 'boy'
@@ -12,20 +13,24 @@ type = 'boy'
 # how many products will probe
 maxSize = 200
 # sleep some time for per product
-sleep_time_per_product = 0.12
+sleep_time_per_product = 0.2
 # some filters for products
 filters = ['isExpress']
 # filters = []
 # origin price must in this range
-origin_price_range = [200, 9999]
+origin_price_range = [180, 9999]
 # current price must in current range
-current_price_range = [0, 120]
+current_price_range = [0, 150]
 # min discount rate we can accept
-min_discount_rate = 0.6
+min_discount_rate = 0.65
 # size of product name we want to show
-product_name_max_len = 20
+product_name_max_len = 26
+# white list for product list
+product_name_white_list = []
 # black list for product list
-product_name_black_list = ["孕妇", "裤"]
+product_name_black_list = ["孕妇", "连衣裙", "裤", "卫衣"]
+# open in default browser automatically
+auto_open_in_browser = True
 
 
 apis = {
@@ -154,9 +159,11 @@ def filter_process(product):
     return next
 
 
-def hit_product_name_black_list(name):
+def hit_product_name_in_list(name, list, hit_when_empty=False):
+    if not list:
+        return hit_when_empty
     hit = False
-    for word in product_name_black_list:
+    for word in list:
         if word in name:
             hit = True
             break
@@ -178,16 +185,13 @@ def main():
             del item[attr]
         item["concessional_rate"] = round(
             (item["originPrice"] - item["minPrice"]) / item["originPrice"], 4)
-    p_list = list(filter(lambda item: item["stock"] == "Y", p_list))
-    p_list = list(filter(lambda item: item["originPrice"] in range(
-        origin_price_range[0], origin_price_range[1]), p_list))
-    p_list = list(filter(lambda item: item["minPrice"] in range(
-        current_price_range[0], current_price_range[1]), p_list))
-    p_list = list(
-        filter(lambda item: item["concessional_rate"] >= min_discount_rate, p_list))
-    p_list = list(filter(lambda item: (not hit_product_name_black_list(
-        item["productName4zhCN"])), p_list))
+
+    p_list = list(filter(lambda item: item["stock"] == "Y" and item["originPrice"] in range(
+        origin_price_range[0], origin_price_range[1]) and item["minPrice"] in range(
+        current_price_range[0], current_price_range[1]) and item["concessional_rate"] >= min_discount_rate and hit_product_name_in_list(
+        item["productName4zhCN"], product_name_white_list, True) and not hit_product_name_in_list(item["productName4zhCN"], product_name_black_list), p_list))
     p_list.sort(key=lambda item: item["concessional_rate"], reverse=True)
+
     log(str(len(p_list)) + ' products has stock, origin prices ranges in ' +
         str(origin_price_range[0]) + ' and ' + str(origin_price_range[1]) + ', current prices ranges in ' +
         str(current_price_range[0]) + ' and ' + str(current_price_range[1]) + ', discount rate at lease ' + str(min_discount_rate))
@@ -202,6 +206,8 @@ def main():
         url = apis["detail"] + item["productCode"]
         top_list.append(
             {"url": url, "discount_rate": item["concessional_rate"], "price": item["minPrice"], "originPrice": item["originPrice"], "productName": item["productName4zhCN"][:product_name_max_len]})
+        if auto_open_in_browser:
+            webbrowser.open(url)
         # sleep some time not to effect services
         time.sleep(sleep_time_per_product)
     if not len(top_list):
